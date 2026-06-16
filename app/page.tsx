@@ -8,7 +8,8 @@ import StrategyGuide from '@/components/strategy-guide';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 
-const ChartPanel = dynamic(() => import('@/components/chart-panel'), { ssr: false });
+const ChartPanel        = dynamic(() => import('@/components/chart-panel'),        { ssr: false });
+const WalkForwardPanel  = dynamic(() => import('@/components/walkforward-panel'),  { ssr: false });
 
 function CurrencyToggle({
   value,
@@ -285,6 +286,13 @@ export default function HomePage() {
                       )}
                     </div>
                   )}
+
+                  {/* ── 워크 포워드 테스트 패널 ── */}
+                  <WalkForwardPanel
+                    ticker={selectedTicker ?? ''}
+                    exchange={exchange}
+                    strategy={strategy}
+                  />
                 </div>
               </div>
             )}
