@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { ScreenerResult, Exchange } from '@/lib/types';
+import { ScreenerResult, Exchange, FeeConfig } from '@/lib/types';
 import { Badge } from './ui/badge';
 import { formatPercent } from '@/lib/utils';
+import { calcNetMetrics } from '@/lib/fee-model';
 import { ChevronUp, ChevronDown, ChevronsUpDown, TrendingUp, Target, Shield, BarChart2 } from 'lucide-react';
 
 export type DisplayCurrency = 'KRW' | 'USD';
@@ -16,6 +17,7 @@ interface Props {
   exchange: Exchange;
   displayCurrency: DisplayCurrency;
   usdKrwRate: number;
+  feeConfig: FeeConfig;
   onSelect: (ticker: string) => void;
 }
 
@@ -59,6 +61,7 @@ export default function ScreenerTable({
   exchange,
   displayCurrency,
   usdKrwRate,
+  feeConfig,
   onSelect,
 }: Props) {
   const [sortField, setSortField] = useState<SortField>('winRate');
@@ -115,6 +118,8 @@ export default function ScreenerTable({
             <Th field="stopLoss">손절가</Th>
             <Th field="expectedReturn">예상 수익률</Th>
             <Th field="winRate">백테스팅 승률</Th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground whitespace-nowrap select-none">순수익 (net)</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground whitespace-nowrap select-none">기댓값 (EV)</th>
             <Th field="signalCount">발생 횟수</Th>
             <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">전략 세부</th>
           </tr>
@@ -162,6 +167,8 @@ export default function ScreenerTable({
                 <td className="px-3 py-2.5">
                   <WinRateBadge rate={row.winRate} />
                 </td>
+                {/* 순수익 & EV — 수수료/슬리피지 반영 */}
+                <NetCells winRate={row.winRate} feeConfig={feeConfig} />
                 <td className="px-3 py-2.5 text-center text-muted-foreground">{row.signalCount}회</td>
                 <td className="px-3 py-2.5 text-xs text-muted-foreground max-w-[200px] truncate">
                   {row.strategyDetail ?? '—'}
@@ -178,4 +185,25 @@ export default function ScreenerTable({
 function WinRateBadge({ rate }: { rate: number }) {
   const variant = rate >= 65 ? 'success' : rate >= 50 ? 'warning' : 'destructive';
   return <Badge variant={variant}>{rate.toFixed(1)}%</Badge>;
+}
+
+function NetCells({ winRate, feeConfig }: { winRate: number; feeConfig: FeeConfig }) {
+  const m = calcNetMetrics(winRate, feeConfig);
+  const evPositive = m.expectedValue >= 0;
+  return (
+    <>
+      {/* 순수익 (익절 시) */}
+      <td className="px-3 py-2.5 font-mono tabular-nums">
+        <span className={m.netWinPct >= 0 ? 'text-green-400' : 'text-red-400'}>
+          {m.netWinPct >= 0 ? '+' : ''}{m.netWinPct.toFixed(2)}%
+        </span>
+      </td>
+      {/* 기댓값 EV */}
+      <td className="px-3 py-2.5">
+        <Badge variant={evPositive ? 'success' : 'destructive'}>
+          {evPositive ? '+' : ''}{m.expectedValue.toFixed(2)}%
+        </Badge>
+      </td>
+    </>
+  );
 }

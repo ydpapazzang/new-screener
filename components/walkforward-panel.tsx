@@ -1,7 +1,8 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { Exchange, StrategyId } from '@/lib/types';
+import { Exchange, StrategyId, FeeConfig } from '@/lib/types';
 import { WFSummary, WFWindow } from '@/lib/walk-forward';
+import { calcNetMetrics, breakEvenWinRate } from '@/lib/fee-model';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -15,6 +16,7 @@ interface Props {
   ticker: string;
   exchange: Exchange;
   strategy: StrategyId;
+  feeConfig: FeeConfig;
 }
 
 const VERDICT_CONFIG: Record<
@@ -139,7 +141,7 @@ function WFChart({ windows }: { windows: WFWindow[] }) {
   );
 }
 
-export default function WalkForwardPanel({ ticker, exchange, strategy }: Props) {
+export default function WalkForwardPanel({ ticker, exchange, strategy, feeConfig }: Props) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<WFSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -226,8 +228,8 @@ export default function WalkForwardPanel({ ticker, exchange, strategy }: Props) 
             </div>
           </div>
 
-          {/* ── 핵심 지표 카드 3개 ── */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* ── 핵심 지표 카드 ── */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricCard
               label="학습 승률 (in-sample)"
               value={`${result.avgInSampleWinRate}%`}
@@ -255,6 +257,22 @@ export default function WalkForwardPanel({ ticker, exchange, strategy }: Props) 
               }
               note="80% 이상 = 강건"
             />
+            {/* 수수료 반영 EV */}
+            {(() => {
+              const nm = calcNetMetrics(result.avgOutSampleWinRate, feeConfig);
+              const bew = breakEvenWinRate(feeConfig);
+              const evPos = nm.expectedValue >= 0;
+              return (
+                <MetricCard
+                  label="수수료 반영 기댓값 (EV)"
+                  value={`${evPos ? '+' : ''}${nm.expectedValue.toFixed(2)}%`}
+                  sub={`손익분기 승률 ${bew.toFixed(1)}%`}
+                  color={evPos ? 'text-green-400' : 'text-red-400'}
+                  note={`왕복비용 ${nm.roundTripCost.toFixed(2)}% 포함`}
+                  highlight={evPos}
+                />
+              );
+            })()}
           </div>
 
           {/* ── 효율 게이지 ── */}

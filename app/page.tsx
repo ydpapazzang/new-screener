@@ -1,9 +1,11 @@
 'use client';
 import { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Exchange, StrategyId, ScreenerResult, ChartData } from '@/lib/types';
+import { Exchange, StrategyId, ScreenerResult, ChartData, FeeConfig } from '@/lib/types';
+import { DEFAULT_FEES } from '@/lib/fee-model';
 import FilterBar from '@/components/filter-bar';
 import ScreenerTable, { DisplayCurrency, formatConverted } from '@/components/screener-table';
+import FeeSettings from '@/components/fee-settings';
 import StrategyGuide from '@/components/strategy-guide';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
@@ -75,6 +77,9 @@ export default function HomePage() {
   const [usdKrwRate, setUsdKrwRate] = useState(1380);
   const [rateLoading, setRateLoading] = useState(false);
 
+  // ── 수수료/슬리피지 설정 ──
+  const [feeConfig, setFeeConfig] = useState<FeeConfig>(DEFAULT_FEES['upbit']);
+
   const fetchRate = useCallback(async () => {
     setRateLoading(true);
     try {
@@ -93,6 +98,7 @@ export default function HomePage() {
   const handleExchangeChange = useCallback((ex: Exchange) => {
     setExchange(ex);
     setDisplayCurrency(ex === 'binance' ? 'USD' : 'KRW');
+    setFeeConfig(DEFAULT_FEES[ex]); // 거래소별 수수료 자동 적용
     setResults([]);
     setSelectedTicker(null);
     setChartData(null);
@@ -244,12 +250,20 @@ export default function HomePage() {
                     />
                   </div>
 
+                  {/* ── 수수료/슬리피지 설정 ── */}
+                  <FeeSettings
+                    exchange={exchange}
+                    config={feeConfig}
+                    onChange={setFeeConfig}
+                  />
+
                   <ScreenerTable
                     results={results}
                     selectedTicker={selectedTicker}
                     exchange={exchange}
                     displayCurrency={displayCurrency}
                     usdKrwRate={usdKrwRate}
+                    feeConfig={feeConfig}
                     onSelect={handleSelectTicker}
                   />
                 </div>
@@ -292,6 +306,7 @@ export default function HomePage() {
                     ticker={selectedTicker ?? ''}
                     exchange={exchange}
                     strategy={strategy}
+                    feeConfig={feeConfig}
                   />
                 </div>
               </div>
