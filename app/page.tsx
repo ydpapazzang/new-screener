@@ -12,6 +12,7 @@ import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-
 
 const ChartPanel        = dynamic(() => import('@/components/chart-panel'),        { ssr: false });
 const WalkForwardPanel  = dynamic(() => import('@/components/walkforward-panel'),  { ssr: false });
+const RiskPanel         = dynamic(() => import('@/components/risk-panel'),         { ssr: false });
 
 function CurrencyToggle({
   value,
@@ -303,6 +304,14 @@ export default function HomePage() {
 
                   {/* ── 워크 포워드 테스트 패널 ── */}
                   <WalkForwardPanel
+                    ticker={selectedTicker ?? ''}
+                    exchange={exchange}
+                    strategy={strategy}
+                    feeConfig={feeConfig}
+                  />
+
+                  {/* ── 리스크 분석 패널 ── */}
+                  <RiskPanel
                     ticker={selectedTicker ?? ''}
                     exchange={exchange}
                     strategy={strategy}

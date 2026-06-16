@@ -58,6 +58,39 @@ export interface NetMetrics {
   breakEvenWinRate: number;// 손익분기 최소 승률 %
 }
 
+export interface TradeRecord {
+  tradeIndex: number;
+  date: string;
+  outcome: 'win' | 'loss';
+  grossReturnPct: number;  // 수수료 전 수익률
+  netReturnPct: number;    // 수수료/슬리피지 차감 후 순수익률
+  holdingDays: number;     // 포지션 보유 일수
+}
+
+export interface RiskMetrics {
+  tradeCount: number;
+  winCount: number;
+  lossCount: number;
+  winRate: number;
+  // 수익률 분포
+  avgNetReturn: number;
+  stdDev: number;
+  bestTrade: number;
+  worstTrade: number;
+  // 비율 지표
+  sharpeRatio: number;
+  sortinoRatio: number;
+  profitFactor: number;
+  // 손실 지표
+  maxDrawdown: number;
+  avgWin: number;
+  avgLoss: number;
+  // 시각화 데이터
+  equityCurve: { trade: number; equity: number; date: string }[];
+  returnDistribution: { range: string; count: number }[];
+  trades: TradeRecord[];
+}
+
 export interface ScreenerApiResponse {
   results: ScreenerResult[];
   scannedCount: number;
