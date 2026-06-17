@@ -13,6 +13,7 @@ import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-
 const ChartPanel        = dynamic(() => import('@/components/chart-panel'),        { ssr: false });
 const WalkForwardPanel  = dynamic(() => import('@/components/walkforward-panel'),  { ssr: false });
 const RiskPanel         = dynamic(() => import('@/components/risk-panel'),         { ssr: false });
+const CompoundPanel     = dynamic(() => import('@/components/compound-panel'),     { ssr: false });
 
 function CurrencyToggle({
   value,
@@ -316,6 +317,16 @@ export default function HomePage() {
                     exchange={exchange}
                     strategy={strategy}
                     feeConfig={feeConfig}
+                  />
+
+                  {/* ── 복리 수익 시뮬레이션 패널 ── */}
+                  <CompoundPanel
+                    ticker={selectedTicker ?? ''}
+                    exchange={exchange}
+                    strategy={strategy}
+                    feeConfig={feeConfig}
+                    displayCurrency={displayCurrency}
+                    usdKrwRate={usdKrwRate}
                   />
                 </div>
               </div>
