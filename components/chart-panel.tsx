@@ -35,16 +35,16 @@ export default function ChartPanel({ ticker, exchange, chartData, loading }: Pro
           width: containerRef.current!.clientWidth,
           height: 440,
           layout: {
-            background: { color: 'hsl(224 71.4% 4.1%)' },
-            textColor: 'hsl(210 20% 65%)',
+            background: { color: '#07090f' },
+            textColor: '#94a3b8',
           },
           grid: {
-            vertLines: { color: 'hsl(215 27.9% 16.9%)' },
-            horzLines: { color: 'hsl(215 27.9% 16.9%)' },
+            vertLines: { color: '#1e293b' },
+            horzLines: { color: '#1e293b' },
           },
           crosshair: { mode: CrosshairMode.Normal },
-          rightPriceScale: { borderColor: 'hsl(215 27.9% 16.9%)' },
-          timeScale: { borderColor: 'hsl(215 27.9% 16.9%)', timeVisible: true },
+          rightPriceScale: { borderColor: '#1e293b' },
+          timeScale: { borderColor: '#1e293b', timeVisible: true },
         });
 
         chartRef.current = chart;
@@ -213,7 +213,7 @@ export default function ChartPanel({ ticker, exchange, chartData, loading }: Pro
 
       {/* Chart container */}
       {loading ? (
-        <div className="flex items-center justify-center h-[440px] bg-[hsl(224_71.4%_4.1%)]">
+        <div className="flex items-center justify-center h-[440px] bg-[#07090f]">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
             <span className="text-xs">차트 데이터 로드 중...</span>
