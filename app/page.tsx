@@ -6,6 +6,7 @@ import { DEFAULT_FEES } from '@/lib/fee-model';
 import FilterBar from '@/components/filter-bar';
 import ScreenerTable, { DisplayCurrency, formatConverted } from '@/components/screener-table';
 import FeeSettings from '@/components/fee-settings';
+import AlertSettings from '@/components/alert-settings';
 import StrategyGuide from '@/components/strategy-guide';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
@@ -14,6 +15,7 @@ const ChartPanel        = dynamic(() => import('@/components/chart-panel'),     
 const WalkForwardPanel  = dynamic(() => import('@/components/walkforward-panel'),  { ssr: false });
 const RiskPanel         = dynamic(() => import('@/components/risk-panel'),         { ssr: false });
 const CompoundPanel     = dynamic(() => import('@/components/compound-panel'),     { ssr: false });
+const DashboardPanel    = dynamic(() => import('@/components/dashboard-panel'),    { ssr: false });
 
 function CurrencyToggle({
   value,
@@ -252,6 +254,9 @@ export default function HomePage() {
                     />
                   </div>
 
+                  {/* ── 텔레그램 알림 설정 ── */}
+                  <AlertSettings />
+
                   {/* ── 수수료/슬리피지 설정 ── */}
                   <FeeSettings
                     exchange={exchange}
@@ -330,6 +335,18 @@ export default function HomePage() {
                   />
                 </div>
               </div>
+            )}
+            {/* ── 전체 분석 대시보드 ── */}
+            {!loading && results.length > 0 && (
+              <DashboardPanel
+                results={results}
+                exchange={exchange}
+                strategy={strategy}
+                feeConfig={feeConfig}
+                displayCurrency={displayCurrency}
+                usdKrwRate={usdKrwRate}
+                onSelectTicker={handleSelectTicker}
+              />
             )}
           </TabsContent>
 
