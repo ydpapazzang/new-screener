@@ -1,9 +1,8 @@
-// Next.js instrumentation hook — 서버 시작 시 1회 실행 (Railway 상시 서버에서만 의미 있음)
+import type { Exchange, StrategyId } from './lib/types';
+
 export async function register() {
-  // Node.js 런타임에서만 실행 (Edge 제외)
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
-  // 텔레그램 설정이 없으면 cron 미등록
   const token  = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
@@ -11,15 +10,13 @@ export async function register() {
     return;
   }
 
-  // node-cron 동적 import (서버 전용)
-  const cron = (await import('node-cron')).default;
+  const cron             = (await import('node-cron')).default;
   const { runDailyReport } = await import('./lib/daily-report');
 
-  const exchange   = (process.env.DAILY_EXCHANGE  ?? 'upbit') as import('./lib/types').Exchange;
-  const strategyId = parseInt(process.env.DAILY_STRATEGY  ?? '1') as import('./lib/types').StrategyId;
+  const exchange   = (process.env.DAILY_EXCHANGE  ?? 'upbit') as Exchange;
+  const strategyId = parseInt(process.env.DAILY_STRATEGY  ?? '1') as StrategyId;
   const threshold  = parseFloat(process.env.DAILY_THRESHOLD ?? '3');
 
-  // 매일 21:00 KST (Asia/Seoul 타임존 직접 지정)
   cron.schedule('0 21 * * *', async () => {
     const ts = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
     console.log(`[Cron] 일일 리포트 실행 시작: ${ts}`);

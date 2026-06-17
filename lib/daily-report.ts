@@ -145,8 +145,8 @@ export async function runDailyReport(opts: DailyReportOptions = {}): Promise<Dai
 
   try {
     // ── 1단계: 스캔 ──────────────────────────────
-    const symbols      = await getTopSymbols(exchange, 35);
-    const screenerHits: { symbol: string; daily: ReturnType<typeof fetchOHLCV> extends Promise<infer T> ? T : never; entryPrice: number; detail?: string }[] = [];
+    const symbols = await getTopSymbols(exchange, 35);
+    const screenerHits: Array<{ symbol: string; daily: import('./types').OHLCV[]; entryPrice: number; detail?: string }> = [];
 
     for (const symbol of symbols) {
       try {
