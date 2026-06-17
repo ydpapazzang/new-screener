@@ -14,8 +14,9 @@ import { BarChart2, BookOpen, TrendingUp, AlertCircle, RefreshCw } from 'lucide-
 const ChartPanel        = dynamic(() => import('@/components/chart-panel'),        { ssr: false });
 const WalkForwardPanel  = dynamic(() => import('@/components/walkforward-panel'),  { ssr: false });
 const RiskPanel         = dynamic(() => import('@/components/risk-panel'),         { ssr: false });
-const CompoundPanel     = dynamic(() => import('@/components/compound-panel'),     { ssr: false });
-const DashboardPanel    = dynamic(() => import('@/components/dashboard-panel'),    { ssr: false });
+const CompoundPanel      = dynamic(() => import('@/components/compound-panel'),      { ssr: false });
+const DashboardPanel     = dynamic(() => import('@/components/dashboard-panel'),     { ssr: false });
+const DailyReportPanel   = dynamic(() => import('@/components/daily-report-panel'),  { ssr: false });
 
 function CurrencyToggle({
   value,
@@ -255,6 +256,13 @@ export default function HomePage() {
 
                   {/* ── 텔레그램 알림 설정 ── */}
                   <AlertSettings />
+
+                  {/* ── 일일 자동 리포트 ── */}
+                  <DailyReportPanel
+                    exchange={exchange}
+                    strategy={strategy}
+                    feeConfig={feeConfig}
+                  />
 
                   {/* ── 수수료/슬리피지 설정 ── */}
                   <FeeSettings
