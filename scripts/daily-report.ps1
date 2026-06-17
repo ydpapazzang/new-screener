@@ -11,7 +11,7 @@
 # ── 설정 ────────────────────────────────────
 # 배포된 Vercel URL (예: https://your-app.vercel.app)
 # 로컬 실행 시: http://localhost:3000
-$BASE_URL   = "https://new-screener.vercel.app"
+$BASE_URL   = "https://new-screener-production.up.railway.app"
 $EXCHANGE   = "upbit"      # upbit | binance | bithumb
 $STRATEGY   = 1            # 1 ~ 5
 $THRESHOLD  = 3            # 진입가 ±% 허용 범위
