@@ -106,15 +106,32 @@ interface ReportItem {
 }
 
 export async function GET(req: NextRequest) {
+  // Vercel Cron은 Authorization: Bearer {CRON_SECRET} 헤더를 자동 첨부
+  // 외부에서 직접 호출 시 CRON_SECRET이 설정된 경우 검증
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const auth = req.headers.get('authorization');
+    const isCron = auth === `Bearer ${cronSecret}`;
+    const isLocal = req.headers.get('x-forwarded-for') === null &&
+                    (req.url.startsWith('http://localhost') || req.url.startsWith('http://127.0.0.1'));
+    if (!isCron && !isLocal) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   const { searchParams } = new URL(req.url);
-  const exchange    = (searchParams.get('exchange') ?? 'upbit') as Exchange;
-  const strategyId  = parseInt(searchParams.get('strategy') ?? '1') as StrategyId;
-  const feeRate     = parseFloat(searchParams.get('feeRate')      ?? String(DEFAULT_FEES[exchange].feeRate));
-  const slipRate    = parseFloat(searchParams.get('slippageRate') ?? String(DEFAULT_FEES[exchange].slippageRate));
-  const threshold   = parseFloat(searchParams.get('threshold')    ?? '3');  // 진입가 ±% 허용 범위
-  const token       = searchParams.get('token')  ?? '';
-  const chatId      = searchParams.get('chatId') ?? '';
-  const dryRun      = searchParams.get('dryRun') === 'true';  // 알림 없이 결과만 반환
+
+  // 환경변수 우선, URL 파라미터는 로컬 개발 / 수동 실행용 fallback
+  const exchange   = (searchParams.get('exchange') ?? process.env.DAILY_EXCHANGE   ?? 'upbit') as Exchange;
+  const strategyId = parseInt(searchParams.get('strategy') ?? process.env.DAILY_STRATEGY ?? '1') as StrategyId;
+  const threshold  = parseFloat(searchParams.get('threshold') ?? process.env.DAILY_THRESHOLD ?? '3');
+  const feeRate    = parseFloat(searchParams.get('feeRate')      ?? String(DEFAULT_FEES[exchange].feeRate));
+  const slipRate   = parseFloat(searchParams.get('slippageRate') ?? String(DEFAULT_FEES[exchange].slippageRate));
+  const dryRun     = searchParams.get('dryRun') === 'true';
+
+  // 토큰: 환경변수 우선 (배포 환경), URL 파라미터는 로컬 테스트용
+  const token  = process.env.TELEGRAM_BOT_TOKEN  ?? searchParams.get('token')  ?? '';
+  const chatId = process.env.TELEGRAM_CHAT_ID    ?? searchParams.get('chatId') ?? '';
 
   const cfg: FeeConfig = { feeRate, slippageRate: slipRate };
 

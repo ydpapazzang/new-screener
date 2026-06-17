@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/daily-report",
+      "schedule": "0 12 * * *"
+    }
+  ],
+  "functions": {
+    "app/api/screener/route.ts":      { "maxDuration": 300 },
+    "app/api/daily-report/route.ts":  { "maxDuration": 300 },
+    "app/api/walkforward/route.ts":   { "maxDuration": 120 },
+    "app/api/risk/route.ts":          { "maxDuration": 120 },
+    "app/api/compound/route.ts":      { "maxDuration": 120 },
+    "app/api/batch-analysis/route.ts":{ "maxDuration": 300 }
+  }
+}

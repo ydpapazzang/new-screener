@@ -9,15 +9,24 @@
 # 5. 인수: -NonInteractive -File "D:\workspace\new_screener\scripts\daily-report.ps1"
 
 # ── 설정 ────────────────────────────────────
-$BASE_URL   = "http://localhost:3000"
+# 배포된 Vercel URL (예: https://your-app.vercel.app)
+# 로컬 실행 시: http://localhost:3000
+$BASE_URL   = "https://new-screener.vercel.app"
 $EXCHANGE   = "upbit"      # upbit | binance | bithumb
 $STRATEGY   = 1            # 1 ~ 5
 $THRESHOLD  = 3            # 진입가 ±% 허용 범위
-$BOT_TOKEN  = "YOUR_BOT_TOKEN_HERE"
-$CHAT_ID    = "YOUR_CHAT_ID_HERE"
+
+# Vercel에 환경변수로 등록했다면 토큰/ID 생략 가능 (서버에서 env 사용)
+# 로컬 개발 시에만 아래 값 입력
+$BOT_TOKEN  = ""
+$CHAT_ID    = ""
 # ─────────────────────────────────────────────
 
-$url = "$BASE_URL/api/daily-report?exchange=$EXCHANGE&strategy=$STRATEGY&threshold=$THRESHOLD&token=$BOT_TOKEN&chatId=$CHAT_ID"
+$params = "exchange=$EXCHANGE&strategy=$STRATEGY&threshold=$THRESHOLD"
+if ($BOT_TOKEN) { $params += "&token=$BOT_TOKEN" }
+if ($CHAT_ID)   { $params += "&chatId=$CHAT_ID" }
+
+$url = "$BASE_URL/api/daily-report?$params"
 
 Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] 일일 리포트 실행 중..."
 
