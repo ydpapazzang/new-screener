@@ -234,10 +234,9 @@ export default function HomePage() {
             )}
 
             {!loading && (
-              <div className="grid grid-cols-1 xl:grid-cols-[1fr_520px] gap-4">
-                {/* Table */}
+              <div className="space-y-4">
+                {/* ── 스크리너 헤더 + 테이블 ── */}
                 <div className="space-y-2">
-                  {/* ── 스크리너 헤더 (통화 토글 포함) ── */}
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <h2 className="text-sm font-semibold text-foreground">
                       스크리닝 결과
@@ -275,65 +274,81 @@ export default function HomePage() {
                   />
                 </div>
 
-                {/* Chart */}
-                <div className="space-y-2">
-                  <h2 className="text-sm font-semibold text-foreground">EOD 차트 &amp; 타점 시각화</h2>
-                  <ChartPanel
-                    ticker={selectedTicker ?? ''}
-                    exchange={exchange}
-                    strategy={strategy}
-                    chartData={chartData}
-                    loading={chartLoading}
-                  />
+                {/* ── 종목 선택 시 차트 + 분석 패널 (테이블 하단) ── */}
+                {selectedTicker && (
+                  <div className="space-y-3 border-t border-border pt-4">
+                    {/* 차트 헤더 */}
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h2 className="text-sm font-semibold text-foreground">
+                        EOD 차트 &amp; 타점 시각화
+                        <span className="ml-2 font-mono text-primary">{selectedTicker}</span>
+                      </h2>
+                      <button
+                        onClick={() => { setSelectedTicker(null); setChartData(null); }}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        ✕ 닫기
+                      </button>
+                    </div>
 
-                  {selectedTicker && chartData && (
-                    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">매매 플랜</h3>
-                        <span className="text-[10px] text-muted-foreground">
-                          {displayCurrency === 'KRW' ? '원화(₩) 기준' : '달러($) 기준'}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <InfoRow label="진입 대기가" value={fmtPrice(chartData.entryPrice)} className="text-blue-400" />
-                        <InfoRow label="1차 목표 (+10%)" value={fmtPrice(chartData.target1)} className="text-green-400" />
-                        <InfoRow label="2차 목표 (+20%)" value={fmtPrice(chartData.target2)} className="text-emerald-400" />
-                        <InfoRow label="손절가 (-5%)" value={fmtPrice(chartData.stopLoss)} className="text-red-400" />
-                      </div>
-                      {results.find((r) => r.ticker === selectedTicker) && (
-                        <p className="text-xs text-muted-foreground border-t border-border pt-2">
-                          {results.find((r) => r.ticker === selectedTicker)?.strategyDetail}
-                        </p>
+                    {/* 차트 + 매매 플랜 (좌우 배치, 큰 화면에서) */}
+                    <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-3">
+                      <ChartPanel
+                        ticker={selectedTicker}
+                        exchange={exchange}
+                        strategy={strategy}
+                        chartData={chartData}
+                        loading={chartLoading}
+                      />
+
+                      {chartData && (
+                        <div className="rounded-lg border border-border bg-card p-4 space-y-3 self-start">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">매매 플랜</h3>
+                            <span className="text-[10px] text-muted-foreground">
+                              {displayCurrency === 'KRW' ? '원화(₩)' : '달러($)'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 text-xs">
+                            <InfoRow label="진입 대기가" value={fmtPrice(chartData.entryPrice)} className="text-blue-400" />
+                            <InfoRow label="1차 목표 (+10%)" value={fmtPrice(chartData.target1)} className="text-green-400" />
+                            <InfoRow label="2차 목표 (+20%)" value={fmtPrice(chartData.target2)} className="text-emerald-400" />
+                            <InfoRow label="손절가 (-5%)" value={fmtPrice(chartData.stopLoss)} className="text-red-400" />
+                          </div>
+                          {results.find((r) => r.ticker === selectedTicker) && (
+                            <p className="text-xs text-muted-foreground border-t border-border pt-2">
+                              {results.find((r) => r.ticker === selectedTicker)?.strategyDetail}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
 
-                  {/* ── 워크 포워드 테스트 패널 ── */}
-                  <WalkForwardPanel
-                    ticker={selectedTicker ?? ''}
-                    exchange={exchange}
-                    strategy={strategy}
-                    feeConfig={feeConfig}
-                  />
-
-                  {/* ── 리스크 분석 패널 ── */}
-                  <RiskPanel
-                    ticker={selectedTicker ?? ''}
-                    exchange={exchange}
-                    strategy={strategy}
-                    feeConfig={feeConfig}
-                  />
-
-                  {/* ── 복리 수익 시뮬레이션 패널 ── */}
-                  <CompoundPanel
-                    ticker={selectedTicker ?? ''}
-                    exchange={exchange}
-                    strategy={strategy}
-                    feeConfig={feeConfig}
-                    displayCurrency={displayCurrency}
-                    usdKrwRate={usdKrwRate}
-                  />
-                </div>
+                    {/* 분석 패널 3개 — 가로 배치 (큰 화면) */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
+                      <WalkForwardPanel
+                        ticker={selectedTicker}
+                        exchange={exchange}
+                        strategy={strategy}
+                        feeConfig={feeConfig}
+                      />
+                      <RiskPanel
+                        ticker={selectedTicker}
+                        exchange={exchange}
+                        strategy={strategy}
+                        feeConfig={feeConfig}
+                      />
+                      <CompoundPanel
+                        ticker={selectedTicker}
+                        exchange={exchange}
+                        strategy={strategy}
+                        feeConfig={feeConfig}
+                        displayCurrency={displayCurrency}
+                        usdKrwRate={usdKrwRate}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {/* ── 전체 분석 대시보드 ── */}
